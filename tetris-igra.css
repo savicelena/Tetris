@@ -1,0 +1,13 @@
+body{
+    overflow: hidden
+}
+
+ #gameRow{
+    height: 100vh;
+}
+
+#gameTable{
+    height: 100%;
+    width: 100%;
+    border: 1px solid grey transparent;
+}
