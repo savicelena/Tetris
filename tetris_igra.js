@@ -7,7 +7,9 @@ $(document).ready(function(){
     var numElem = 7;
     var currentElem = null;
     var game;
-    var colored = [];
+    var elemNum = 1;
+    var elemId;
+    var maxElem = 50;
 
     elements = [
         [
@@ -139,8 +141,8 @@ $(document).ready(function(){
                 let col = currentCol + j;
                 if(elem[i][j] != 0){
                     $("#"+row+"c"+col).css("background-color", colors[elem[i][j]]);
-                    gameTable[row][col] = elem[i][j];
-                    colored.push(row*numCols+col);
+                    gameTable[row][col] = elemId;
+                    //colored.push(row*numCols+col);
                 }
                 
             }
@@ -204,9 +206,10 @@ $(document).ready(function(){
         let firstPopulated = getPopulated(elem);
         let row;
         if(firstPopulated > 0){
-            
+            //ukoliko smo dosli do kraja nakon rotiranja
             if (currentRow - firstPopulated >= numRows) return true;
             let allZeros = true;
+            //gledamo da li su sve nule u narednom redu
             for(let j = currentCol; j < currentCol + elem[0].length; j++){
                 if(gameTable[currentRow-firstPopulated][j] != 0){
                     allZeros = false;
@@ -234,23 +237,24 @@ $(document).ready(function(){
             for(let j = 0; j < elem[i].length; j++){
                 let col = currentCol + j;
                 if (col > numCols) break;
-                //console.log('row'+row);
+                console.log('row'+row);
                 
-                //console.log("val" + elem[i][j]);
-                //console.log("next" +gameTable[row][col]);
+                console.log("val" + elem[i][j]);
+                console.log("next" +gameTable[row][col]);
+                console.log("id"+elemId);
                 //kada proveravamo prve redove moze da ide dole ako je ispod celija iste boje ili prazna
-                if (elem[i][j] != 0 && gameTable[row][col] != 0 && gameTable[row][col] != getColor(elem)){
+                if (elem[i][j] != 0 && gameTable[row][col] != 0 && gameTable[row][col] != elemId){
                     console.log('o');
                     return true;
                 }
-                //ako je poslednji red ne moze da ide dole iako je ispod ista boja
-                if(elem[i][j] != 0 && gameTable[row][col] != 0 && i == (elem.length - 1 - firstPopulated)) {
-                    console.log('e');
-                    return true;
-                }
-                if(elem[i][j] == 0 && (row-1) >= 0 && gameTable[row-1][col] != 0 && i != (elem.length-1-firstPopulated)){
-                    return true;
-                }
+                // //ako je poslednji red ne moze da ide dole iako je ispod ista boja
+                // if(elem[i][j] != 0 && gameTable[row][col] != 0 && i == (elem.length - 1 - firstPopulated)) {
+                //     console.log('e');
+                //      return true;
+                //  }
+                // if(elem[i][j] == 0 && (row-1) >= 0 && gameTable[row-1][col] != 0 && i != (elem.length-1-firstPopulated)){
+                //     return true;
+                // }
                 
             }
             row += 1;
@@ -260,7 +264,7 @@ $(document).ready(function(){
     }
 
     function nextPosition(elem){
-        let newColored = [];
+        //let newColored = [];
         let row = currentRow;
         let colorNum = getColor(elem);
         //idemo odozdo nagore i kopiramo celije iznad
@@ -277,11 +281,11 @@ $(document).ready(function(){
                 //ako je element nula i celija je bila obojena njegovom bojom, onda vracamo celiju na inicijalno stanje
                 if (elem[i][j] != 0){
                     $("#"+row+"c"+col).css("background-color", colors[elem[i][j]]);
-                    gameTable[row][col] = elem[i][j];
-                    newColored.push(row*numCols+col);
-                }else if (row != currentRow && colored.includes(row*numCols+col)){
-                    console.log(colored);
-                    console.log("colored: row" + row + ", col:" + col);
+                    gameTable[row][col] = elemId;
+                    //newColored.push(row*numCols+col);
+                }else if (row != currentRow && gameTable[row][col] == elemId){
+                    
+                    
                     $("#"+row+"c"+col).css("background-color", "grey");
                     gameTable[row][col] = 0;
                 }
@@ -292,7 +296,7 @@ $(document).ready(function(){
             row -= 1;
         }
         currentRow += 1;
-        colored = newColored;
+        //colored = newColored;
 
         
     }
@@ -313,7 +317,7 @@ $(document).ready(function(){
                 
                 
                 for(let j = 0; j < numCols; j++){
-                    $("#"+row+"c"+j).css("background-color", colors[gameTable[row-1][j]])
+                    $("#"+row+"c"+j).css("background-color", colors[gameTable[row-1][j]%maxElem])
                     gameTable[row][j] = gameTable[row-1][j];
                 }
                 row -= 1;
@@ -344,6 +348,8 @@ $(document).ready(function(){
             
             if (currentElem == null){
                 currentElem = getNext();
+                elemId = elemNum*maxElem + getColor(currentElem);
+                elemNum++;
                 nextPosition(currentElem);
             }
             
@@ -360,6 +366,8 @@ $(document).ready(function(){
                     return;
                 }
                 currentElem = getNext();
+                elemId = elemNum*maxElem + getColor(currentElem);
+                elemNum++;
                 currentRow = 0;
                 rowsPassed = 0;
                 
@@ -374,7 +382,7 @@ $(document).ready(function(){
                 
                 for(let j = currentCol; j < (currentCol + currentElem[0].length); j++){
                     let row = currentRow - currentElem.length;
-                    if (gameTable[row][j] == getColor(currentElem)){
+                    if (gameTable[row][j] == elemId){
                         $("#"+row+"c"+j).css("background-color", "grey");
                         gameTable[row][j] = 0;
                     }
@@ -449,13 +457,13 @@ $(document).ready(function(){
                     for(let j = 0; j < newElem[i].length; j++){
                         let col = currentCol + j;
                         if (col >= numCols) break;
-                        if(prev[i][j] != 0 && gameTable[row][col] == prev[i][j]){
+                        if(prev[i][j] != 0 && gameTable[row][col] == elemId){
                             $("#"+row+"c"+col).css("background-color", "grey");
                             gameTable[row][col] = 0;
                         }
                         if(newElem[i][j] != 0){
                             $("#"+row+"c"+col).css("background-color", colors[newElem[i][j]]);
-                            gameTable[row][col] = newElem[i][j];
+                            gameTable[row][col] = elemId;
                         }
                     }
                 }
