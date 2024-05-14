@@ -45,3 +45,23 @@ body{
     text-align: center;
     
 }
+
+#shapes{
+    text-align: center;
+    
+}
+
+.chooseLabel{
+    font-family: 'Times New Roman', Times, serif;
+}
+
+#modeDiv{
+    text-align: center;
+    background-color: bisque;
+    border: dotted 2px;
+}
+
+div{
+    text-align: center;
+}
+
