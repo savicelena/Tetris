@@ -10,6 +10,10 @@ $(document).ready(function(){
     var elemNum = 1;
     var elemId;
     var maxElem = 50;
+    var velocity = 300;
+    var startVelocity = 300;
+    var down = false;
+    var moreVelocity = startVelocity * 0.67;
 
     elements = [
         [
@@ -132,6 +136,16 @@ $(document).ready(function(){
         }
     }
 
+    //ubrzavanje figure
+    function faster(){
+        console.log('down'+down);
+        down = true;
+        clearInterval(game);
+        velocity -= moreVelocity;
+        startInterval(velocity);
+        console.log('smanjena'+down);
+    }
+
     function move(elem){
         for(let i = 0; i < elem.length; i++){
             let row = currentRow - elem.length + i;
@@ -237,11 +251,11 @@ $(document).ready(function(){
             for(let j = 0; j < elem[i].length; j++){
                 let col = currentCol + j;
                 if (col > numCols) break;
-                console.log('row'+row);
+                //console.log('row'+row);
                 
-                console.log("val" + elem[i][j]);
-                console.log("next" +gameTable[row][col]);
-                console.log("id"+elemId);
+                // console.log("val" + elem[i][j]);
+                // console.log("next" +gameTable[row][col]);
+                // console.log("id"+elemId);
                 //kada proveravamo prve redove moze da ide dole ako je ispod celija iste boje ili prazna
                 if (elem[i][j] != 0 && gameTable[row][col] != 0 && gameTable[row][col] != elemId){
                     console.log('o');
@@ -342,7 +356,7 @@ $(document).ready(function(){
     //initialPosition(elem);
     //nextPosition(currentElem);
 
-    function startInterval(){
+    function startInterval(time){
         
         game = setInterval(function(){
             
@@ -393,17 +407,17 @@ $(document).ready(function(){
             nextPosition(currentElem);
             
     
-        },200);
+        }, time);
 
     }
 
-    startInterval();
+    startInterval(velocity);
     
 
     
 
     $(document).keydown(function(key){
-        clearInterval(game);
+        //clearInterval(game);
         if (key.keyCode == 39){
             
             if (currentCol + currentElem[0].length - getColZeros(currentElem) < numCols && hasBeneath(currentElem, currentCol+1) == false && hasRight(currentElem) == false){
@@ -449,7 +463,11 @@ $(document).ready(function(){
                 }
             }
 
+            //brisanje starih polja i upisivanje novih
+            //ukoliko dodje do kolizije vracamo na prethodno stanje
             let realCols = newElem[0].length - getColZeros(newElem);
+            let collision = false;
+            
             if (currentCol + realCols <= numCols){
                 for(let i = 0; i < rows; i++){
                     let row = currentRow - rows + i;
@@ -461,23 +479,69 @@ $(document).ready(function(){
                             $("#"+row+"c"+col).css("background-color", "grey");
                             gameTable[row][col] = 0;
                         }
-                        if(newElem[i][j] != 0){
+                        if(newElem[i][j] != 0 && gameTable[row][col] == 0){
                             $("#"+row+"c"+col).css("background-color", colors[newElem[i][j]]);
                             gameTable[row][col] = elemId;
+                        }else if(newElem[i][j] != 0 && gameTable[row][col] != 0){
+                            collision = true;
+                            break;
                         }
                     }
+                    
+                    if (collision == true) break;
+                    
                 }
-                currentElem = newElem;
+                if (collision == true){
+                    
+                    for(let i = 0; i < rows; i++){
+                        let row = currentRow - rows + i;
+                        if (row < 0) continue;
+                        for(let j = 0; j < newElem[i].length; j++){
+                            let col = currentCol + j;
+                            if (col >= numCols) break;
+                            if(prev[i][j] != 0){
+                                $("#"+row+"c"+col).css("background-color", colors[getColor(currentElem)]);
+                                gameTable[row][col] = elemId;
+                            }
+                            
+                        }
+                    }
+                }else{
+                    currentElem = newElem;
+                }
+                
             }
             
             
             
         }else if (key.keyCode == 32){
             return;
+        }else if(key.keyCode == 40){
+            
+            console.log('hocu da smanjim');
+            console.log('downvan'+down);
+            //dok je pritisnut taster down figura ide brze
+            //ovaj deo koda se izvrsava sve dok je taster pritisnut i zbog toga moramo da obezbedimo da se brzina smanji samo jednom
+            if (down == false){
+                faster();
+            }
+            
+            //clearInterval(game);
         }
         
 
-        startInterval();
+        //startInterval();
+    })
+
+    $(document).keyup(function(key){
+        //kada se pusti taster down postavljamo flag na false i vraca brzinu na pocetnu
+        if (key.keyCode == 40){
+            down = false;
+            console.log('pusteno'+velocity);
+            clearInterval(game);
+            velocity = startVelocity;
+            startInterval(velocity);
+        }
     })
     
 
