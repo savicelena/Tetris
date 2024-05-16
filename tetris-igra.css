@@ -2,14 +2,47 @@ body{
     overflow: hidden
 }
 
- .pageRow{
+.pageRow{
     height: 100vh;
 }
 
+#gameRow{
+    background-color: beige;
+}
+
 #gameTable{
-    height: 100%;
+    height: 90%;
     width: 100%;
     border: 1px solid grey transparent;
+}
+
+.labels{
+    font-size: 20px;
+    font-family: Comic Sans MS;
+}
+
+.nextElDiv{
+    background-color: bisque;
+    border: solid 2px;
+    text-align: center;
+    margin-top: 40%;
+    margin-bottom: 20%;
+}
+
+
+#info{
+    height: 85%;
+    width: 100%;
+    background-color: coral;
+    align-items: center;
+    justify-content: center;
+}
+
+
+#nextTableDiv{
+    display: flex;
+    text-align: center;
+    justify-content: center;
 }
 
 .edges{
@@ -39,7 +72,7 @@ body{
     font-family: 'Times New Roman', Times, serif;
 }
 
-#descriptiveDiv{
+.descriptiveDiv{
     background-color: bisque;
     border: solid 2px;
     text-align: center;

@@ -10,10 +10,18 @@ $(document).ready(function(){
     var elemNum = 1;
     var elemId;
     var maxElem = 50;
-    var velocity = 300;
-    var startVelocity = 300;
+    var velocity;
+    var startVelocity;
     var down = false;
-    var moreVelocity = startVelocity * 0.67;
+    var moreVelocity;
+    var nextElemData = {
+        'nextElem': 0,
+        'nextColumn': 0,
+        'nextElemId': 0
+    }
+    var result = 0;
+    var points = 10;
+    
 
     elements = [
         [
@@ -62,6 +70,35 @@ $(document).ready(function(){
     fieldHeight = fieldTable.height();
     fieldWidth = fieldTable.width();
     cellWidth = fieldWidth/numCols;
+    var availableElements = localStorage.getItem('elements');
+    if(availableElements != null){
+        availableElements = JSON.parse(availableElements);
+        localStorage.removeItem("elements");
+    }else{
+        availableElements = [0, 1, 2, 3, 4, 5, 6];
+    }
+    let mode = localStorage.getItem("mode");
+    if(mode != null){
+        if (mode == 1){
+            startVelocity = 300;
+            velocity = 300;
+        }else if (mode == 2){
+            startVelocity = 200;
+            velocity = 200;
+        }else{
+            startVelocity = 100;
+            velocity = 100;
+        }
+        localStorage.removeItem("mode");
+        moreVelocity = startVelocity * 0.8;
+       
+    }else{
+        startVelocity = 300;
+        velocity = 300;
+        moreVelocity = startVelocity * 0.8;
+        mode = 1;
+    }
+    $("#level").text("Level: " + mode);
     
     
 
@@ -75,7 +112,7 @@ $(document).ready(function(){
         gameRow = [];
 
         for (let j = 0; j < numCols; j++){
-            cell = $("<td></td>").attr("id", i+"c"+j).css("background-color", "f").css({
+            cell = $("<td></td>").attr("id", i+"c"+j).css("background-color", "grey").css({
                 "width": cellWidth,
                 "height": "40px"
             });
@@ -139,6 +176,7 @@ $(document).ready(function(){
     //ubrzavanje figure
     function faster(){
         console.log('down'+down);
+        console.log("mv"+moreVelocity);
         down = true;
         clearInterval(game);
         velocity -= moreVelocity;
@@ -181,15 +219,20 @@ $(document).ready(function(){
     }
 
     function getNext(){
-        
-        let nextElem = Math.floor(Math.random() * numElem);
-        elem = elements[nextElem];
+        let nextElem = Math.floor(Math.random() * availableElements.length);
+        elem = elements[availableElements[nextElem]];
+        let column;
         do{
-            currentCol = Math.floor(Math.random() * numCols);
-        }while (currentCol + elem[0].length > numCols);
-        currentElem = nextElem;
+            column = Math.floor(Math.random() * numCols);
+        }while (column + elem[0].length > numCols);
+        //currentElem = nextElem;
+
+        data = {
+            'elem': elem,
+            'column': column
+        }
        
-        return elem;
+        return data;
     }
 
     function hasRight(elem){
@@ -317,39 +360,77 @@ $(document).ready(function(){
 
     function checkForPoints(){
         let row = currentRow - 1 >= numRows ? numRows-1 : currentRow - 1;
+        let saveRow = row;
+        //let row = numRows - 1;
         if (row < 0) return;
         
-        
-        wholeRow = gameTable[row].every(function(elem){
-            return elem != 0;
-        })
-        
-        //sve dok red ima sve elemente razlicite od 0, vrse se provere i elementi se povlace nanize
-        while(wholeRow == true){
-            let allZeros;
-            do{
-                
-                
-                for(let j = 0; j < numCols; j++){
-                    $("#"+row+"c"+j).css("background-color", colors[gameTable[row-1][j]%maxElem])
-                    gameTable[row][j] = gameTable[row-1][j];
-                }
-                row -= 1;
-                if (row > 0){
-                    allZeros = gameTable[row].every(function(elem){
-                        return elem == 0;
-                    })
-                }
-                
-                
-            }while(row > 0 && allZeros == false);
-
-            row = currentRow - 1;
+        for(let i = 0; i < elem.length && row > 0; i++){
             wholeRow = gameTable[row].every(function(elem){
                 return elem != 0;
             })
             
+            //sve dok red ima sve elemente razlicite od 0, vrse se provere i elementi se povlace nanize
+            while(wholeRow == true){
+                let allZeros;
+
+                result += points;
+                $("#result").text("Result: " + result);
+                do{
+                    
+                    
+                    for(let j = 0; j < numCols; j++){
+                        $("#"+row+"c"+j).css("background-color", colors[gameTable[row-1][j]%maxElem])
+                        gameTable[row][j] = gameTable[row-1][j];
+                    }
+                    row -= 1;
+                    if (row > 0){
+                        allZeros = gameTable[row].every(function(elem){
+                            return elem == 0;
+                        })
+                    }
+                    
+                    
+                }while(row > 0 && allZeros == false);
+    
+                row = currentRow - 1;
+                wholeRow = gameTable[row].every(function(elem){
+                    return elem != 0;
+                })
+                
+            }
+
+            row = saveRow - i - 1;
         }
+        
+    }
+
+    function setNextElem(){
+        let data = getNext();
+        nextElemData['nextElem'] = data['elem'];
+        let nextElem = nextElemData['nextElem'];
+        nextElemData['nextColumn'] = data['column'];
+        nextElemData['nextElemId'] = elemNum*maxElem + getColor(nextElem);
+        elemNum++;
+        $("#nextElemTable").remove();
+        let table = $("<table></table>");
+        for(let r = 0; r < nextElem.length; r++){
+            let row = $("<tr></tr>");
+            for(let c = 0; c < nextElem[r].length; c++){
+                row.append(
+                    $("<td></td>").css({
+                        "background-color": colors[nextElem[r][c]],
+                        "width": "25px",
+                        "height": "25px",
+                        "border": "solid 2px black"
+                    })
+                );
+                
+            }
+            table.attr("id", "nextElemTable");
+            table.append(row);
+        }
+        //table.attr("id", i);
+        $("#nextTableDiv").append(table);
     }
 
     //currentElem = getNext();
@@ -359,14 +440,18 @@ $(document).ready(function(){
     function startInterval(time){
         
         game = setInterval(function(){
-            
+
             if (currentElem == null){
-                currentElem = getNext();
+                data = getNext();
+                currentElem = data['elem'];
+                currentCol = data['column'];
                 elemId = elemNum*maxElem + getColor(currentElem);
                 elemNum++;
                 nextPosition(currentElem);
+                setNextElem();
             }
             
+            console.log('currentCol'+currentCol);
             if (hasBeneath(currentElem, currentCol)){
                 checkForPoints();
     
@@ -379,9 +464,10 @@ $(document).ready(function(){
                     alert('KRAJ')
                     return;
                 }
-                currentElem = getNext();
-                elemId = elemNum*maxElem + getColor(currentElem);
-                elemNum++;
+                currentElem = nextElemData['nextElem'];
+                elemId = nextElemData['nextElemId'];
+                currentCol = nextElemData['nextColumn'];
+                setNextElem();
                 currentRow = 0;
                 rowsPassed = 0;
                 
@@ -410,7 +496,8 @@ $(document).ready(function(){
         }, time);
 
     }
-
+    
+    
     startInterval(velocity);
     
 
