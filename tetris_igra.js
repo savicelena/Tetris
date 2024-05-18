@@ -114,7 +114,8 @@ $(document).ready(function(){
         for (let j = 0; j < numCols; j++){
             cell = $("<td></td>").attr("id", i+"c"+j).css("background-color", "grey").css({
                 "width": cellWidth,
-                "height": "40px"
+                "height": "40px",
+                "border": "solid 1px black"
             });
             row.append(cell);
             gameRow.push(0);
@@ -461,7 +462,21 @@ $(document).ready(function(){
                 })
                 if (zeros == false){
                     clearInterval(game);
-                    alert('KRAJ')
+                    let name = prompt('Enter your name:')
+                    let info = {
+                        "name": name,
+                        "result": result
+                    };
+                    let players = localStorage.getItem('players');
+                    if (players == null){
+                        let playersArr = [info];
+                        localStorage.setItem("players", JSON.stringify(playersArr));
+                    }else{
+                        let playersArr = JSON.parse(players);
+                        playersArr.push(info);
+                        localStorage.setItem("players", JSON.stringify(playersArr));
+                    }
+                    window.location = 'tetris-rezultati.html';
                     return;
                 }
                 currentElem = nextElemData['nextElem'];

@@ -16,17 +16,27 @@ body{
     border: 1px solid grey transparent;
 }
 
+
 .labels{
     font-size: 20px;
     font-family: Comic Sans MS;
+}
+
+.resultDiv{
+    background-color: bisque;
+    border: solid 2px;
+    text-align: center;
+    margin-top: 40%;
+    margin-bottom: 30%;
 }
 
 .nextElDiv{
     background-color: bisque;
     border: solid 2px;
     text-align: center;
-    margin-top: 40%;
-    margin-bottom: 20%;
+    display: grid;
+    place-items: center;
+    height: 30%;
 }
 
 
@@ -52,7 +62,7 @@ body{
     justify-content: center;
 }
 
-#instruction{
+.instruction{
     background-color: beige;
 }
 
@@ -97,4 +107,25 @@ body{
 div{
     text-align: center;
 }
+
+#resultTable{
+    background-color: bisque;
+    border: solid 3px coral;
+    border-collapse: collapse;
+}
+
+#resultTableDiv{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 10%;
+}
+
+.centerPage{
+    display: grid;
+    place-content: center;
+}
+
+
+
 
