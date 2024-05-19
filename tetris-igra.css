@@ -112,6 +112,7 @@ div{
     background-color: bisque;
     border: solid 3px coral;
     border-collapse: collapse;
+    width: 100%;
 }
 
 #resultTableDiv{

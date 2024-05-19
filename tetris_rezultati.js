@@ -12,6 +12,14 @@ $(document).ready(function(){
         playersArr.sort(function(elem1, elem2){
             return elem2['result'] - elem1['result'];
         })
+        let toRemove = [];
+        for(let i = 5; i < playersArr.length; i++){
+            toRemove.push(playersArr[i]);
+        }
+        console.log(toRemove);
+        for(let i = 0; i < toRemove.length; i++){
+            playersArr.pop(toRemove[i]);
+        }
 
         let value = [1, 'name', 'result'];
 
@@ -34,6 +42,8 @@ $(document).ready(function(){
             })
             
         })
+
+        localStorage.setItem("players", JSON.stringify(playersArr))
     }
 
     $("#mainPage").click(function(){
