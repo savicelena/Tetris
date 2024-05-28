@@ -559,7 +559,7 @@ $(document).ready(function(){
             }
         //gornja strelica - rotacija
         }else if (key.keyCode == 38){
-            
+            clearInterval(game);
             
             let prev = currentElem;
             
@@ -630,7 +630,7 @@ $(document).ready(function(){
                 }else{
                     currentElem = newElem;
                 }
-                
+                startInterval(velocity);
             }
             
             
